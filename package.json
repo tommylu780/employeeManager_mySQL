@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "console.table": "^0.10.0",
+    "figlet": "^1.5.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1",
+    "ora": "^5.4.0",
+    "start": "^5.1.0"
+  }
+}
