@@ -12,12 +12,12 @@
 - [Questions](#questions)
 
 ## Installation
-💾 npm i inquirer is required
-💾 npm i ora is required
-💾 npm i chalk is required
-💾 npm i mysql is required
-💾 npm i figlet is required
-💾 npm i console.table is required
+- 💾 npm i inquirer is required
+- 💾 npm i ora is required
+- 💾 npm i chalk is required
+- 💾 npm i mysql is required
+- 💾 npm i figlet is required
+- 💾 npm i console.table is required
 
 ## Usage
 💻 MU Coding Bootcamp assignment
