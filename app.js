@@ -44,10 +44,8 @@ async function startPrompt() {
                 "Add role",
                 "View employee by Manager",
                 "Update employee role",
-                "Update employee by Manager",
-                "Delete departments",
-                "Delete role",
-                "Delete employees",
+                "Update employee manager",
+                "Delete employee",
                 "View the total utilized budget of a department",
                 "Exit"
             ]
@@ -72,11 +70,37 @@ async function startPrompt() {
                     startPrompt()
                     ViewManager()
                     break;
+
                 case 'Add department':
                     addDepartment();
                     break;
+
                 case 'Add employee':
                     addEmployee()
+                    break;
+
+                case 'Add role':
+                    addRole()
+                    break;
+
+                case 'View employee by Manager':
+                    viewAllEmployeesByManager()
+                    break;
+
+                case 'Update employee role':
+                    updateEmployeeRole()
+                    break;
+
+                case 'Update employee manager':
+                    updateEmployeeManager()
+                    break;
+
+                case 'Delete employee':
+                    deleteEmployee()
+                    break;
+
+                case 'View the total utilized budget of a department':
+                    ViewTotalSalary()
                     break;
 
                 case "Exit":
@@ -85,15 +109,6 @@ async function startPrompt() {
         })
 }
 
-// main();
-// async function main() {
-//     let exitLoop = false;
-//     while (!exitLoop) {
-//         const prompt = await startPrompt();
-
-
-//     }
-// }
 // View
 // Department
 async function ViewDepartment() {
@@ -236,24 +251,180 @@ function addRole() {
     //connection.query get depatemny id 
     inquirer.
     prompt([{
-            name: 'Title',
+            name: 'title',
             type: 'input',
             message: 'Enter title of new role',
         },
         {
-            name: 'Salary',
+            name: 'salary',
             type: 'input',
             message: 'Enter Salary of new role',
         },
         {
-            name: 'Department',
+            name: 'department',
             type: 'input',
             message: 'Enter Department of new role',
         },
     ]).then((data) => {
-        console.log(data);
-        console.log(data.Title);
-        console.log(data.Salary);
-        connection.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${data.Title}', '${data.Salary}', '1')`)
+        console.log(`${data} added`);
+        connection.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${data.title}', '${data.salary}', '1')`)
     })
+}
+
+function viewAllEmployeesByManager() {
+    let query = "SELECT employee.id AS `Id`, employee.first_name AS FirstName, employee.last_name AS LastName, role.title AS Title, ";
+    query += "department.name AS Department FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id ";
+    query += "LEFT JOIN employee manager on manager.id = employee.manager_id WHERE employee.manager_id IS NOT NULL;"
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startPrompt();
+    });
+}
+
+function updateEmployeeRole() {
+    console.log('Updating data');
+    connection.query('select * from role', (err, res) => {
+        if (err) throw err;
+        let arr = res.map(role => ({
+            name: role.title,
+            value: role.id
+        }))
+
+        connection.query(
+            'SELECT id, first_name, last_name, role_id from employee', (err, data) => {
+                if (err) throw err
+                const employees = data.map(names => ({
+                    id: names.id,
+                    name: `${names.first_name} ${names.last_name}`,
+                    role_id: names.role_id
+                }))
+                const employee_id = data.map(names => ({
+                    name: names.id,
+                }))
+                console.log(employees);
+                inquirer
+                    .prompt([{
+                            name: 'names',
+                            type: 'rawlist',
+                            message: 'Who would you like to update',
+                            choices: employees,
+                        },
+                        {
+                            name: 'role_id',
+                            type: 'list',
+                            message: 'What is the new role',
+                            choices: arr,
+                        },
+                        {
+                            name: 'id',
+                            type: 'list',
+                            message: 'what is the id of the employee',
+                            choices: employee_id,
+                        },
+                    ]).then((Choice) => {
+                        console.log('data updated')
+                        connection.query('UPDATE employee SET ? WHERE ?', [{
+                                    role_id: Choice.role_id,
+                                },
+                                {
+                                    id: Choice.id,
+                                },
+                            ],
+                            startPrompt()
+                        )
+
+                    })
+            })
+    })
+}
+
+function updateEmployeeManager() {
+    connection.query(
+        'SELECT id, first_name, last_name, manager_id from employee where manager_id IS NOT NULL', (err, data) => {
+            if (err) throw err
+            const employees = data.map(employee => ({
+                id: employee.id,
+                name: `${employee.first_name} ${employee.last_name}`,
+                manager_id: employee.manager_id
+            }))
+            const employee_id = data.map(names => ({
+                name: names.id,
+            }))
+            console.log(employees);
+            inquirer
+                .prompt([{
+                        name: 'names',
+                        type: 'rawlist',
+                        message: 'Who would you like to update',
+                        choices: employees,
+                    },
+                    {
+                        name: 'manager_id',
+                        type: 'list',
+                        message: 'What is the new manager',
+                        choices: employees,
+                    },
+                    {
+                        name: 'id',
+                        type: 'list',
+                        message: 'what is the id of the employee',
+                        choices: employee_id,
+                    },
+                ]).then((Choice) => {
+                    console.log('data updated')
+                    connection.query('UPDATE employee SET ? WHERE ?', [{
+                                manager_id: Choice.manager_id,
+                            },
+                            {
+                                id: Choice.id,
+                            },
+                        ],
+                        startPrompt()
+                    )
+
+                })
+        })
+}
+
+function deleteEmployee() {
+    connection.query('select * from employee', (err, res) => {
+        if (err) throw err
+
+        const employees = res.map(role => ({
+            name: `${role.first_name} ${role.last_name}`,
+            value: role.id
+        }))
+
+        inquirer.
+        prompt({
+            name: 'delete',
+            type: 'list',
+            message: 'Who would you like to delete?',
+            choices: employees,
+
+        }).then((employee_delete) => {
+            connection.query(
+                'DELETE FROM employee  WHERE ?', [{
+                    id: employee_delete.delete,
+                }, ],
+                (err, res) => {
+                    if (err) throw err
+                    console.log(`employee deleted`)
+                    startPrompt()
+                }
+            )
+
+        })
+    })
+}
+
+function ViewTotalSalary() {
+    let query = 'SELECT SUM(salary) AS "Total Salary" FROM role WHERE salary > 0;';
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        startPrompt()
+    })
+
 }
