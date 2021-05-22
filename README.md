@@ -36,3 +36,7 @@ This application is covered by the MIT license.
 :octocat: Find me on GitHub: [tommylu780](https://github.com/tommylu780)<br />
 <br />
 ✉️ Email me with any questions: nhoksun340@gmail.com<br /><br />
+![w13](https://user-images.githubusercontent.com/53459495/119231460-5f01a880-bb64-11eb-947e-cd8bb31b2e1a.PNG)
+![w13-1](https://user-images.githubusercontent.com/53459495/119231464-632dc600-bb64-11eb-82ca-d63db2a81214.PNG)
+
+
